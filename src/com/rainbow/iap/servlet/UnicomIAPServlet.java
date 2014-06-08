@@ -24,6 +24,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.rainbow.iap.dao.impl.UnicomIAPDAOImpl;
+import com.rainbow.iap.entity.UnicomIAPInfo;
+import com.rainbow.iap.util.IAPDateFormatter;
+
 /**
  * Servlet implementation class IAPServlet
  */
@@ -198,9 +202,22 @@ public class UnicomIAPServlet extends HttpServlet
 			Element resElem = resultDoc.createElement("callbackRsp");
 			if (orderId != null && signMsg != null)
 			{
-				//handle the result and persist them
-				resElem.setTextContent("0");
+				//handle the result
+				//persist them
+				UnicomIAPInfo unicomIapInfo = UnicomIAPDAOImpl.getInstance().getByOrderId(orderId);
+				if (unicomIapInfo == null)
+				{
+					unicomIapInfo = new UnicomIAPInfo();
+					unicomIapInfo.setOrderId(orderId);
+					unicomIapInfo.setOrderTime(IAPDateFormatter.strToTime(orderTime, "yyyyMMddHHmmss"));
+					unicomIapInfo.setCpId(cpId);
+					unicomIapInfo.setConsumeCode(consumeCode);
+					unicomIapInfo.setOrderResult(Integer.parseInt(hRet));
+					unicomIapInfo.setOrderStatus(Integer.parseInt(status));
+					UnicomIAPDAOImpl.getInstance().save(unicomIapInfo);
+				}
 			}
+			resElem.setTextContent("0");
 			resultDoc.appendChild(resElem);
 			Transformer transformer = TransformerFactory.newInstance().newTransformer();
 			transformer.setOutputProperty("indent", "yes");
