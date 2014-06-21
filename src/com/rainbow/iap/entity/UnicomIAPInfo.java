@@ -9,7 +9,7 @@ public class UnicomIAPInfo
 	private Timestamp	orderTime;
 	private String		cpId;
 	private String		consumeCode;
-	private int		orderResult;
+	private int			orderResult;
 	private int			orderStatus;
 	
 	public long getId()

@@ -6,6 +6,7 @@ import java.io.StringWriter;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+//import javax.ws.rs.QueryParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -20,6 +21,8 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -34,13 +37,15 @@ import com.rainbow.iap.util.IAPDateFormatter;
 @Path("/ChinaUnicomIAPService")
 public class ChinaUnicomIAPService
 {
+	private static final Log logger = LogFactory.getLog(ChinaUnicomIAPService.class);
+	
 	@POST
     @Path("/request/post")
-    @Produces(MediaType.APPLICATION_XML)
-	@Consumes({MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+	@Consumes({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
 	public String postValidateOrderId(String xmlContent)
 	{
-		System.out.println("recv: " + xmlContent);
+		logger.info("recv: " + xmlContent);
 		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 		try
 		{
@@ -146,7 +151,7 @@ public class ChinaUnicomIAPService
 			transformer.setOutputProperty("indent", "yes");
 			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 			transformer.transform(new DOMSource(resultDoc), new StreamResult(strWriter));
-			System.out.println("send: " + strWriter.toString());
+			logger.info("send: " + strWriter.toString());
 			return strWriter.toString();
 		} catch (ParserConfigurationException e)
 		{
