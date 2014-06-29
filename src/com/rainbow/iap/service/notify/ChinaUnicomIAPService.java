@@ -1,4 +1,4 @@
-package com.rainbow.iap.rest;
+package com.rainbow.iap.service.notify;
 
 import java.io.IOException;
 import java.io.StringReader;

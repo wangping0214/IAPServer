@@ -1,4 +1,4 @@
-package com.rainbow.iap.servlet;
+package com.rainbow.iap.service.notify;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -29,7 +29,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.rainbow.iap.entity.UnionPayIAPInfo;
 import com.rainbow.iap.util.CipherUtil;
+import com.rainbow.iap.util.IAPDateFormatter;
 
 /**
  * Servlet implementation class UnionPayIAPService
@@ -165,7 +167,50 @@ public class UnionPayIAPService extends HttpServlet
 	}
 	
 	private void processTrade(Element tradeElem)
-	{	
+	{
+		UnionPayIAPInfo iapInfo = new UnionPayIAPInfo();
+		String tradeTimeStr = "";
+		NodeList childNodes = tradeElem.getChildNodes();
+		for (int i = 0; i < childNodes.getLength(); ++ i)
+		{
+			Element childElem = (Element) childNodes.item(i);
+			if (childElem.getTagName().equals("TYPE"))
+			{
+				iapInfo.setTradeType(childElem.getTextContent());
+			}
+			else if (childElem.getTagName().equals("ID"))
+			{
+				iapInfo.setTradeId(childElem.getTextContent());
+			}
+			else if (childElem.getTagName().equals("AMOUNT"))
+			{
+				iapInfo.setTradeAmount(childElem.getTextContent());
+			}
+			else if (childElem.getTagName().equals("CURRENCY"))
+			{
+				iapInfo.setTradeCurrency(childElem.getTextContent());
+			}
+			else if (childElem.getTagName().equals("DATE"))
+			{
+				tradeTimeStr = childElem.getTextContent() + tradeTimeStr;
+			}
+			else if (childElem.getTagName().equals("TIME"))
+			{
+				tradeTimeStr += childElem.getTextContent();
+			}
+			else if (childElem.getTagName().equals("NOTE"))
+			{
+				iapInfo.setTradeNote(childElem.getTextContent());
+			}
+			else if (childElem.getTagName().equals("STATUS"))
+			{
+				iapInfo.setTradeStatus(Integer.parseInt(childElem.getTextContent()));
+			}
+		}
+		if (!tradeTimeStr.isEmpty())
+		{
+			iapInfo.setTradeTime(IAPDateFormatter.strToTime(tradeTimeStr, "yyyyMMddHHmmss"));
+		}
 	}
 	
 	private void processCard(Element cardElem)
