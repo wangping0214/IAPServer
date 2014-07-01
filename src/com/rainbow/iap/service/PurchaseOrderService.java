@@ -73,21 +73,21 @@ public class PurchaseOrderService extends HttpServlet
 				purchaseOrder.setChinaUnicomProductId("0000000000001001");
 				purchaseOrder.setChinaUnicomConsumeCode("000000010029");
 				purchaseOrder.setDescription("短代支付测试物品详细信息");
-				purchaseOrder.setOrderId("00000001" + "0001" + "02" + String.format("%010d", System.currentTimeMillis()/1000));
+				purchaseOrder.setOrderId("00000001" + "0001" + "00" + String.format("%010d", System.currentTimeMillis()/1000));
 				break;
 			case PURCHASE_METHOD_TYPE_ALIPAY:
 				purchaseOrder = new PurchaseOrder();
 				purchaseOrder.setName("支付宝支付测试物品");
 				purchaseOrder.setPrice(0.01);
 				purchaseOrder.setDescription("支付宝支付测试物品详细信息");
-				purchaseOrder.setOrderId("00000001" + "0001" + "02" + String.format("%050d", System.currentTimeMillis()));
+				purchaseOrder.setOrderId("00000001" + "0001" + "01" + String.format("%050d", System.currentTimeMillis()));
 				break;
 			case PURCHASE_METHOD_TYPE_UNION_PAY:
 				purchaseOrder = new PurchaseOrder();
 				purchaseOrder.setName("银联支付测试物品");
 				purchaseOrder.setPrice(0.01);
 				purchaseOrder.setDescription("银联支付测试物品详细信息");
-				purchaseOrder.setOrderId("00000001" + "0001" + "02" + String.format("%036d", System.currentTimeMillis()));
+				purchaseOrder.setOrderId("00000001" + "0001" + "02" + String.format("%010d", System.currentTimeMillis()/1000));
 				break;
 			}
 			
