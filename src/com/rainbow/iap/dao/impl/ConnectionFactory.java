@@ -29,7 +29,7 @@ public class ConnectionFactory
 		{
 			InitialContext ctx = new InitialContext();
 			_dataSource = (DataSource) ctx
-					.lookup("java:/comp/env/jdbc/rainbow_iap");
+					.lookup("java:/comp/env/jdbc/rainbow");
 		} catch (NamingException e)
 		{
 			e.printStackTrace();
