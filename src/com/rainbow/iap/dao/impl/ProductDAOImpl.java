@@ -51,8 +51,8 @@ public class ProductDAOImpl implements ProductDAO
 					product.setProductId(rs.getString("product_id"));
 					product.setName(rs.getString("name"));
 					product.setDescription(rs.getString("description"));
-					product.setUnicomConsumeCode(rs.getString("china_unicom_product_id"));
-					product.setUnicomProductId(rs.getString("china_unicom_consume_code"));
+					product.setUnicomProductId(rs.getString("china_unicom_product_id"));
+					product.setUnicomConsumeCode(rs.getString("china_unicom_consume_code"));
 					return product;
 				}
 			}
