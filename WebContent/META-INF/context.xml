@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context>
-    <!-- -->
+	<!--  -->
 	<Resource name="jdbc/rainbow" auth="Container" type="javax.sql.DataSource"
-	maxActive="100" maxIdle="30" maxWait="10000" validationQuery="SELECT 1" testOnBorrow="true"
-	username="root" password="admin" driverClassName="com.mysql.jdbc.Driver"
-	url="jdbc:mysql://localhost:3306/rainbow"/>
-	<!-- -->
+		maxActive="100" maxIdle="30" maxWait="10000" validationQuery="SELECT 1" testOnBorrow="true"
+		username="wcsk_admin" password="wcsk_wcsk_123456" driverClassName="com.mysql.jdbc.Driver"
+		url="jdbc:mysql://rdsjfiaiajfiaia.mysql.rds.aliyuncs.com:3306/rainbow"/>
+	<!--  -->
+    <!--
+	<Resource name="jdbc/rainbow" auth="Container" type="javax.sql.DataSource"
+		maxActive="100" maxIdle="30" maxWait="10000" validationQuery="SELECT 1" testOnBorrow="true"
+		username="root" password="admin" driverClassName="com.mysql.jdbc.Driver"
+		url="jdbc:mysql://localhost:3306/rainbow"/>
+	-->
 </Context>
