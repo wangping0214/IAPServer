@@ -43,7 +43,7 @@ public class ChinaUnicomIAPService
     @Path("/request/post")
     @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
 	@Consumes({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
-	public String postValidateOrderId(String xmlContent)
+	public String postService(String xmlContent)
 	{
 		logger.info("recv: " + xmlContent);
 		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
