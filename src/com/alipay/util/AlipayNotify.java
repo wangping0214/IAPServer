@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.alipay.config.AlipayConfig;
 import com.alipay.sign.RSA;
+import com.rainbow.iap.util.ReceiptUtil;
 
 /* *
  *¿‡√˚£∫AlipayNotify
@@ -129,10 +130,10 @@ public class AlipayNotify
     
     public static void persist(Map<String, String> params, boolean isSuccess)
     {
-    	logger.info("persist: " + isSuccess);
-    	for (Map.Entry<String, String> entry : params.entrySet())
+    	if (isSuccess)
     	{
-    		logger.info(entry.getKey() + "=" + entry.getValue());
+    		logger.info("out_trade_no" + "=" + params.get("out_trade_no"));
+    		ReceiptUtil.generateReceipt(params.get("out_trade_no"));
     	}
     }
 }

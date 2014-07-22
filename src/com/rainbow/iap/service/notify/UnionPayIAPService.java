@@ -20,6 +20,7 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -40,7 +41,8 @@ import com.rainbow.iap.util.IAPDateFormatter;
 public class UnionPayIAPService extends HttpServlet
 {
 	private static final long serialVersionUID = 1L;
-	private static final String UNION_PAY_KEY = "wcsk_unionpay_md5_key_xx";
+	private static final String UNION_PAY_MD5_KEY = "qazwsx22992916";
+	private static final String UNION_PAY_DES_KEY = "AU+51RwgzY/pKVH7W3V6dpheC4MxvFjc";
 	private static final Log logger = LogFactory.getLog(UnionPayIAPService.class);
 	
 	
@@ -82,6 +84,9 @@ public class UnionPayIAPService extends HttpServlet
 			Document doc = docBuilder.parse(request.getInputStream());
 			Element chinaBankElem = doc.getDocumentElement();
 			Element cipherDataElem = null;
+			String version = null;
+			String merchant = null;
+			String terminal = null;
 			String requestData = null;
 			String signStr = null;
 			NodeList childNodes = chinaBankElem.getChildNodes();
@@ -94,14 +99,17 @@ public class UnionPayIAPService extends HttpServlet
 					if (childElem.getTagName().equals("VERSION"))
 					{
 						logger.info("VERSION: " + childElem.getTextContent());
+						version = childElem.getTextContent();
 					}
 					else if (childElem.getTagName().equals("MERCHANT"))
 					{
 						logger.info("MERCHANT: " + childElem.getTextContent());
+						merchant = childElem.getTextContent();
 					}
 					else if (childElem.getTagName().equals("TERMINAL"))
 					{
 						logger.info("TERMINAL: " + childElem.getTextContent());
+						terminal = childElem.getTextContent();
 					}
 					else if (childElem.getTagName().equals("DATA"))
 					{
@@ -117,10 +125,10 @@ public class UnionPayIAPService extends HttpServlet
 				}
 			}
 			
-			boolean validateSignResult = validateSign(requestData, signStr);
+			boolean validateSignResult = validateSign(version + merchant + terminal + requestData, signStr);
 			if (requestData != null && signStr != null)
 			{
-				String plainRequestData = CipherUtil.desDecrypt(requestData, UNION_PAY_KEY);
+				String plainRequestData = CipherUtil.desDecrypt(requestData, UNION_PAY_DES_KEY);
 				if (plainRequestData != null)
 				{
 					Document dataDoc = docBuilder.parse(new InputSource(new StringReader(plainRequestData)));
@@ -137,14 +145,14 @@ public class UnionPayIAPService extends HttpServlet
 					{
 						cardElem = (Element) nodeList.item(0);
 					}
-					if (tradeElem != null && cardElem != null)
+					if (tradeElem != null || cardElem != null)
 					{
 						processTrade(tradeElem);
 						processCard(cardElem);
 						Element returnElem = genReturn(dataDoc, validateSignResult);
 						dataElem.replaceChild(returnElem, cardElem);
 						String returnStr = transform(dataDoc);
-						String cipherReturnStr = CipherUtil.desEncrypt(returnStr, UNION_PAY_KEY);
+						String cipherReturnStr = CipherUtil.desEncrypt(returnStr, UNION_PAY_DES_KEY);
 						cipherDataElem.setTextContent(cipherReturnStr);
 					}
 				}
@@ -163,6 +171,15 @@ public class UnionPayIAPService extends HttpServlet
 	
 	private boolean validateSign(String dataStr, String signStr)
 	{
+		String calSignStr = DigestUtils.md5Hex(dataStr + UNION_PAY_MD5_KEY);
+		if (calSignStr.equals(signStr))
+		{
+			logger.info("UnionPay validate sign successfully!");
+		}
+		else
+		{
+			logger.info("UnionPay validate sign failed!");
+		}
 		return true;
 	}
 	
@@ -180,10 +197,12 @@ public class UnionPayIAPService extends HttpServlet
 			}
 			else if (childElem.getTagName().equals("ID"))
 			{
+				logger.info("ID: " + childElem.getTextContent());
 				iapInfo.setTradeId(childElem.getTextContent());
 			}
 			else if (childElem.getTagName().equals("AMOUNT"))
 			{
+				logger.info("AMOUNT: " + childElem.getTextContent());
 				iapInfo.setTradeAmount(childElem.getTextContent());
 			}
 			else if (childElem.getTagName().equals("CURRENCY"))

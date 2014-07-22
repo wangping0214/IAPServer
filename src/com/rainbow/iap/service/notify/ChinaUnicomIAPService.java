@@ -33,6 +33,7 @@ import org.xml.sax.SAXException;
 import com.rainbow.iap.dao.impl.UnicomIAPDAOImpl;
 import com.rainbow.iap.entity.UnicomIAPInfo;
 import com.rainbow.iap.util.IAPDateFormatter;
+import com.rainbow.iap.util.ReceiptUtil;
 
 @Path("/ChinaUnicomIAPService")
 public class ChinaUnicomIAPService
@@ -140,6 +141,7 @@ public class ChinaUnicomIAPService
 							unicomIapInfo.setOrderStatus(Integer.parseInt(status));
 						}
 						UnicomIAPDAOImpl.getInstance().save(unicomIapInfo);
+						ReceiptUtil.generateReceipt(orderId);
 					}
 				}
 				resElem.setTextContent("0");
