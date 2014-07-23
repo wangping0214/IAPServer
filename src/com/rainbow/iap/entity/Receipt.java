@@ -9,6 +9,7 @@ public class Receipt
 	private String appId;
 	private String productId;
 	private String orderId;
+	private String customData;
 	private Timestamp receiptTime;
 	private int hasNotify;
 	
@@ -65,6 +66,16 @@ public class Receipt
 	public void setOrderId(String orderId)
 	{
 		this.orderId = orderId;
+	}
+
+	public String getCustomData()
+	{
+		return customData;
+	}
+
+	public void setCustomData(String customData)
+	{
+		this.customData = customData;
 	}
 
 	public Timestamp getReceiptTime()

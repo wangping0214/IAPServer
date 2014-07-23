@@ -3,6 +3,7 @@ package com.rainbow.iap.service.notify;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Enumeration;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -34,6 +35,8 @@ import com.rainbow.iap.entity.UnionPayIAPInfo;
 import com.rainbow.iap.util.CipherUtil;
 import com.rainbow.iap.util.IAPDateFormatter;
 
+import org.apache.commons.codec.binary.Base64;
+
 /**
  * Servlet implementation class UnionPayIAPService
  */
@@ -41,8 +44,8 @@ import com.rainbow.iap.util.IAPDateFormatter;
 public class UnionPayIAPService extends HttpServlet
 {
 	private static final long serialVersionUID = 1L;
-	private static final String UNION_PAY_MD5_KEY = "qazwsx22992916";
-	private static final String UNION_PAY_DES_KEY = "AU+51RwgzY/pKVH7W3V6dpheC4MxvFjc";
+	private static final String UNION_PAY_MD5_KEY = "qazwsx22968429";
+	private static final String UNION_PAY_DES_KEY = "Q2dY+2sp3PEv0zRnDiY01m6uSTdPcz4f";
 	private static final Log logger = LogFactory.getLog(UnionPayIAPService.class);
 	
 	
@@ -77,11 +80,17 @@ public class UnionPayIAPService extends HttpServlet
 	private void validate(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+		logger.info("contentType=" + request.getContentType());
+		logger.info("contentLen=" + request.getContentLength());
+		logger.info("charset: " + request.getCharacterEncoding());
+		String resp = request.getParameter("resp");
 		try
 		{
+			String xmlContent = new String(Base64.decodeBase64(resp), "UTF-8");
+			logger.info("xmlContent: " + xmlContent);
+			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-			Document doc = docBuilder.parse(request.getInputStream());
+			Document doc = docBuilder.parse(new InputSource(new StringReader(xmlContent)));
 			Element chinaBankElem = doc.getDocumentElement();
 			Element cipherDataElem = null;
 			String version = null;

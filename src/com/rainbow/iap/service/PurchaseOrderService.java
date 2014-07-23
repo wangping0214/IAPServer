@@ -2,6 +2,7 @@ package com.rainbow.iap.service;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.Timestamp;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,8 +16,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import com.rainbow.iap.dao.impl.OrderDAOImpl;
 import com.rainbow.iap.dao.impl.ProductDAOImpl;
 import com.rainbow.iap.dao.impl.UniqueIdDAOImpl;
+import com.rainbow.iap.entity.Order;
 import com.rainbow.iap.entity.Product;
 import com.rainbow.iap.entity.json.PurchaseOrder;
 import com.rainbow.iap.entity.json.PurchaseOrderRequest;
@@ -110,6 +113,14 @@ public class PurchaseOrderService extends HttpServlet
 			{
 				purchaseOrder.setProductId(purchaseOrderRequest.getProductId());
 				purchaseOrder.setPurchaseTime(System.currentTimeMillis());
+				
+				Order order = new Order();
+				order.setOrderId(purchaseOrder.getOrderId());
+				order.setProductId(purchaseOrder.getProductId());
+				order.setOrderTime(new Timestamp(purchaseOrder.getPurchaseTime()));
+				order.setCustomData(purchaseOrderRequest.getCustomData());
+				OrderDAOImpl.getInstance().save(order);
+				
 				JSONObject resultJsonObj = new JSONObject();
 				purchaseOrder.marshal(resultJsonObj);
 				response.setContentType("application/json");

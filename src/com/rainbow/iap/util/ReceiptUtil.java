@@ -37,7 +37,9 @@ public class ReceiptUtil
 			String appId = orderId.substring(CP_ID_LEN, APP_ID_LEN + CP_ID_LEN);
 			receipt.setCpId(cpId);
 			receipt.setAppId(appId);
+			receipt.setProductId(order.getProductId());
 			receipt.setOrderId(orderId);
+			receipt.setCustomData(order.getCustomData());
 			receipt.setReceiptTime(new Timestamp(System.currentTimeMillis()));
 			ReceiptDAOImpl.getInstance().save(receipt);
 		}
