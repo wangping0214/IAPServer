@@ -3,7 +3,6 @@ package com.rainbow.iap.service.notify;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Enumeration;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -21,7 +20,6 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -32,8 +30,10 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.rainbow.iap.entity.UnionPayIAPInfo;
-import com.rainbow.iap.util.CipherUtil;
+import com.rainbow.iap.util.DES;
 import com.rainbow.iap.util.IAPDateFormatter;
+import com.rainbow.iap.util.MD5;
+import com.rainbow.iap.util.ReceiptUtil;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -64,7 +64,14 @@ public class UnionPayIAPService extends HttpServlet
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		validate(request, response);
+		try
+		{
+			validate(request, response);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -74,11 +81,18 @@ public class UnionPayIAPService extends HttpServlet
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		validate(request, response);
+		try
+		{
+			validate(request, response);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	private void validate(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException
+			HttpServletResponse response) throws Exception
 	{
 		logger.info("contentType=" + request.getContentType());
 		logger.info("contentLen=" + request.getContentLength());
@@ -137,7 +151,7 @@ public class UnionPayIAPService extends HttpServlet
 			boolean validateSignResult = validateSign(version + merchant + terminal + requestData, signStr);
 			if (requestData != null && signStr != null)
 			{
-				String plainRequestData = CipherUtil.desDecrypt(requestData, UNION_PAY_DES_KEY);
+				String plainRequestData = DES.decrypt(requestData, UNION_PAY_DES_KEY, "UTF-8");;
 				if (plainRequestData != null)
 				{
 					Document dataDoc = docBuilder.parse(new InputSource(new StringReader(plainRequestData)));
@@ -161,7 +175,7 @@ public class UnionPayIAPService extends HttpServlet
 						Element returnElem = genReturn(dataDoc, validateSignResult);
 						dataElem.replaceChild(returnElem, cardElem);
 						String returnStr = transform(dataDoc);
-						String cipherReturnStr = CipherUtil.desEncrypt(returnStr, UNION_PAY_DES_KEY);
+						String cipherReturnStr = DES.encrypt(returnStr, UNION_PAY_DES_KEY, "UTF-8");
 						cipherDataElem.setTextContent(cipherReturnStr);
 					}
 				}
@@ -178,9 +192,9 @@ public class UnionPayIAPService extends HttpServlet
 		}
 	}
 	
-	private boolean validateSign(String dataStr, String signStr)
+	private boolean validateSign(String dataStr, String signStr) throws Exception
 	{
-		String calSignStr = DigestUtils.md5Hex(dataStr + UNION_PAY_MD5_KEY);
+		String calSignStr = MD5.md5(dataStr, UNION_PAY_MD5_KEY);
 		if (calSignStr.equals(signStr))
 		{
 			logger.info("UnionPay validate sign successfully!");
@@ -208,6 +222,7 @@ public class UnionPayIAPService extends HttpServlet
 			{
 				logger.info("ID: " + childElem.getTextContent());
 				iapInfo.setTradeId(childElem.getTextContent());
+				ReceiptUtil.generateReceipt(iapInfo.getTradeId());
 			}
 			else if (childElem.getTagName().equals("AMOUNT"))
 			{
