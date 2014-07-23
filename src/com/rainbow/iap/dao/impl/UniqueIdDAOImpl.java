@@ -104,6 +104,7 @@ public class UniqueIdDAOImpl implements UniqueIdDAO
 			{
 				updatePstmt.setLong(1, entry.getValue().longValue());
 				updatePstmt.setString(2, entry.getKey());
+				updatePstmt.executeUpdate();
 			}
 		}
 		catch (SQLException e)
