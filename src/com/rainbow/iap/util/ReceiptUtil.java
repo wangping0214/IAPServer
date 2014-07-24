@@ -1,14 +1,25 @@
 package com.rainbow.iap.util;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.json.JSONObject;
 
+import com.rainbow.iap.dao.impl.AppInfoDAOImpl;
 import com.rainbow.iap.dao.impl.OrderDAOImpl;
 import com.rainbow.iap.dao.impl.ReceiptDAOImpl;
+import com.rainbow.iap.entity.AppInfo;
 import com.rainbow.iap.entity.Order;
 import com.rainbow.iap.entity.Receipt;
 
@@ -42,6 +53,7 @@ public class ReceiptUtil
 			receipt.setCustomData(order.getCustomData());
 			receipt.setReceiptTime(new Timestamp(System.currentTimeMillis()));
 			ReceiptDAOImpl.getInstance().save(receipt);
+			notify(receipt);
 		}
 		else
 		{
@@ -51,7 +63,42 @@ public class ReceiptUtil
 	
 	public static void notify(Receipt receipt)
 	{
-		_notifyMap.put(receipt.getOrderId(), receipt);
-		
+		//_notifyMap.put(receipt.getOrderId(), receipt);
+		AppInfo appInfo = AppInfoDAOImpl.getInstance().getByCpIdAndAppId(receipt.getAppId(), receipt.getCpId());
+		if (appInfo != null && appInfo.getNotifyUrl() != null)
+		{
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.put("productId", receipt.getProductId());
+			jsonObj.put("orderId", receipt.getOrderId());
+			jsonObj.put("customData", receipt.getCustomData());
+			
+			HttpPost post = new HttpPost(appInfo.getNotifyUrl());
+			StringEntity strEntity = new StringEntity(jsonObj.toString(),"UTF-8");
+			post.setEntity(strEntity);
+			ResponseHandler<String> responseHandler = new BasicResponseHandler();
+			CloseableHttpClient httpClient = HttpClients.createDefault();
+			try
+			{
+				try
+				{
+					httpClient.execute(post, responseHandler);
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+			finally
+			{
+				try
+				{
+					httpClient.close();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }

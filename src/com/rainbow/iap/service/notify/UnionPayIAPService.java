@@ -2,7 +2,7 @@ package com.rainbow.iap.service.notify;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
+//import java.io.StringWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+/*
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -19,6 +20,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+*/
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -106,7 +108,7 @@ public class UnionPayIAPService extends HttpServlet
 			DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
 			Document doc = docBuilder.parse(new InputSource(new StringReader(xmlContent)));
 			Element chinaBankElem = doc.getDocumentElement();
-			Element cipherDataElem = null;
+			//Element cipherDataElem = null;
 			String version = null;
 			String merchant = null;
 			String terminal = null;
@@ -137,7 +139,7 @@ public class UnionPayIAPService extends HttpServlet
 					else if (childElem.getTagName().equals("DATA"))
 					{
 						logger.info("DATA: " + childElem.getTextContent());
-						cipherDataElem = childElem;
+						//cipherDataElem = childElem;
 						requestData = childElem.getTextContent();
 					}
 					else if (childElem.getTagName().equals("SIGN"))
@@ -149,40 +151,42 @@ public class UnionPayIAPService extends HttpServlet
 			}
 			
 			boolean validateSignResult = validateSign(version + merchant + terminal + requestData, signStr);
-			if (requestData != null && signStr != null)
+			if (validateSignResult)
 			{
 				String plainRequestData = DES.decrypt(requestData, UNION_PAY_DES_KEY, "UTF-8");;
+				logger.info("plainRequestData=" + plainRequestData);
 				if (plainRequestData != null)
 				{
 					Document dataDoc = docBuilder.parse(new InputSource(new StringReader(plainRequestData)));
 					Element dataElem = dataDoc.getDocumentElement();
 					Element tradeElem = null;
-					Element cardElem = null;
+					Element returnElem = null;
 					NodeList nodeList = dataElem.getElementsByTagName("TRADE");
 					if (nodeList.getLength() >= 1)
 					{
 						tradeElem = (Element) nodeList.item(0);
 					}
-					nodeList = dataElem.getElementsByTagName("CARD");
+					nodeList = dataElem.getElementsByTagName("RETURN");
 					if (nodeList.getLength() >= 1)
 					{
-						cardElem = (Element) nodeList.item(0);
+						returnElem = (Element) nodeList.item(0);
 					}
-					if (tradeElem != null || cardElem != null)
+					if (tradeElem != null || returnElem != null)
 					{
 						processTrade(tradeElem);
-						processCard(cardElem);
+						processReturn(returnElem);
+						/*
 						Element returnElem = genReturn(dataDoc, validateSignResult);
-						dataElem.replaceChild(returnElem, cardElem);
+						dataElem.replaceChild(returnElem, returnElem);
 						String returnStr = transform(dataDoc);
 						String cipherReturnStr = DES.encrypt(returnStr, UNION_PAY_DES_KEY, "UTF-8");
-						cipherDataElem.setTextContent(cipherReturnStr);
+						cipherDataElem.setTextContent(cipherReturnStr);*/
 					}
 				}
 			}
 			
-			response.setContentType("application/xml");
-			response.getWriter().println(transform(doc));
+			//response.setContentType("application/xml");
+			//response.getWriter().println(transform(doc));
 		} catch (ParserConfigurationException e)
 		{
 			e.printStackTrace();
@@ -198,12 +202,13 @@ public class UnionPayIAPService extends HttpServlet
 		if (calSignStr.equals(signStr))
 		{
 			logger.info("UnionPay validate sign successfully!");
+			return true;
 		}
 		else
 		{
 			logger.info("UnionPay validate sign failed!");
+			return false;
 		}
-		return true;
 	}
 	
 	private void processTrade(Element tradeElem)
@@ -213,41 +218,45 @@ public class UnionPayIAPService extends HttpServlet
 		NodeList childNodes = tradeElem.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); ++ i)
 		{
-			Element childElem = (Element) childNodes.item(i);
-			if (childElem.getTagName().equals("TYPE"))
+			Node childNode = childNodes.item(i);
+			if (childNode instanceof Element)
 			{
-				iapInfo.setTradeType(childElem.getTextContent());
-			}
-			else if (childElem.getTagName().equals("ID"))
-			{
-				logger.info("ID: " + childElem.getTextContent());
-				iapInfo.setTradeId(childElem.getTextContent());
-				ReceiptUtil.generateReceipt(iapInfo.getTradeId());
-			}
-			else if (childElem.getTagName().equals("AMOUNT"))
-			{
-				logger.info("AMOUNT: " + childElem.getTextContent());
-				iapInfo.setTradeAmount(childElem.getTextContent());
-			}
-			else if (childElem.getTagName().equals("CURRENCY"))
-			{
-				iapInfo.setTradeCurrency(childElem.getTextContent());
-			}
-			else if (childElem.getTagName().equals("DATE"))
-			{
-				tradeTimeStr = childElem.getTextContent() + tradeTimeStr;
-			}
-			else if (childElem.getTagName().equals("TIME"))
-			{
-				tradeTimeStr += childElem.getTextContent();
-			}
-			else if (childElem.getTagName().equals("NOTE"))
-			{
-				iapInfo.setTradeNote(childElem.getTextContent());
-			}
-			else if (childElem.getTagName().equals("STATUS"))
-			{
-				iapInfo.setTradeStatus(Integer.parseInt(childElem.getTextContent()));
+				Element childElem = (Element) childNodes.item(i);
+				if (childElem.getTagName().equals("TYPE"))
+				{
+					iapInfo.setTradeType(childElem.getTextContent());
+				}
+				else if (childElem.getTagName().equals("ID"))
+				{
+					logger.info("ID: " + childElem.getTextContent());
+					iapInfo.setTradeId(childElem.getTextContent());
+					ReceiptUtil.generateReceipt(iapInfo.getTradeId());
+				}
+				else if (childElem.getTagName().equals("AMOUNT"))
+				{
+					logger.info("AMOUNT: " + childElem.getTextContent());
+					iapInfo.setTradeAmount(childElem.getTextContent());
+				}
+				else if (childElem.getTagName().equals("CURRENCY"))
+				{
+					iapInfo.setTradeCurrency(childElem.getTextContent());
+				}
+				else if (childElem.getTagName().equals("DATE"))
+				{
+					tradeTimeStr = childElem.getTextContent() + tradeTimeStr;
+				}
+				else if (childElem.getTagName().equals("TIME"))
+				{
+					tradeTimeStr += childElem.getTextContent();
+				}
+				else if (childElem.getTagName().equals("NOTE"))
+				{
+					iapInfo.setTradeNote(childElem.getTextContent());
+				}
+				else if (childElem.getTagName().equals("STATUS"))
+				{
+					iapInfo.setTradeStatus(Integer.parseInt(childElem.getTextContent()));
+				}
 			}
 		}
 		if (!tradeTimeStr.isEmpty())
@@ -256,10 +265,28 @@ public class UnionPayIAPService extends HttpServlet
 		}
 	}
 	
-	private void processCard(Element cardElem)
+	private void processReturn(Element returnElem)
 	{
+		NodeList childNodes = returnElem.getChildNodes();
+		for (int i = 0; i < childNodes.getLength(); ++ i)
+		{
+			Node childNode = childNodes.item(i);
+			if (childNode instanceof Element)
+			{
+				Element childElem = (Element) childNode;
+				if (childElem.getTagName().equals("CODE"))
+				{
+					logger.info("CODE=" + childElem.getTextContent());
+				}
+				else if (childElem.getTagName().equals("DESC"))
+				{
+					logger.info("DESC=" + childElem.getTextContent());
+				}
+			}
+		}
 	}
 	
+	/*
 	private Element genReturn(Document dataDoc, boolean validateSignResult)
 	{
 		Element returnElem = dataDoc.createElement("RETURN");
@@ -295,4 +322,5 @@ public class UnionPayIAPService extends HttpServlet
 		}
 		return null;
 	}
+	*/
 }
