@@ -64,7 +64,8 @@ public class ReceiptUtil
 	public static void notify(Receipt receipt)
 	{
 		//_notifyMap.put(receipt.getOrderId(), receipt);
-		AppInfo appInfo = AppInfoDAOImpl.getInstance().getByCpIdAndAppId(receipt.getAppId(), receipt.getCpId());
+		AppInfo appInfo = AppInfoDAOImpl.getInstance().getByCpIdAndAppId(receipt.getCpId(), receipt.getAppId());
+		logger.info("appInfo=" + appInfo);
 		if (appInfo != null && appInfo.getNotifyUrl() != null)
 		{
 			JSONObject jsonObj = new JSONObject();
@@ -81,7 +82,9 @@ public class ReceiptUtil
 			{
 				try
 				{
-					httpClient.execute(post, responseHandler);
+					logger.info("Notify: " + appInfo.getNotifyUrl());
+					String result = httpClient.execute(post, responseHandler);
+					logger.info("Result: " + result);
 				}
 				catch (IOException e)
 				{
