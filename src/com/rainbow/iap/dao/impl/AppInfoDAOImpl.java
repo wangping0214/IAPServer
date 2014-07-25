@@ -33,8 +33,8 @@ public class AppInfoDAOImpl implements AppInfoDAO
 		(
 			Connection conn = ConnectionFactory.getInstance().getConnection();
 			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery("select * from appinfo where cp_id=\'" + cpId + "\' " +
-					"app_id=\'" + appId + "\'");
+				ResultSet rs = stmt.executeQuery("select * from appinfo where cp_id=\'" + cpId + "\' " +
+						" and app_id=\'" + appId + "\'");
 		)
 		{
 			if (rs.next())
