@@ -2,12 +2,13 @@ package com.rainbow.iap.util;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+//import java.util.Map;
+//import java.util.concurrent.ConcurrentHashMap;
 
+
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -30,7 +31,7 @@ public class ReceiptUtil
 	private static final int CP_ID_LEN = 8;
 	private static final int APP_ID_LEN = 4;
 	
-	private static Map<String, Receipt> _notifyMap = new ConcurrentHashMap<String, Receipt>();
+	//private static Map<String, Receipt> _notifyMap = new ConcurrentHashMap<String, Receipt>();
 	
 	public static void generateReceipt(String orderId)
 	{
@@ -72,6 +73,19 @@ public class ReceiptUtil
 			jsonObj.put("productId", receipt.getProductId());
 			jsonObj.put("orderId", receipt.getOrderId());
 			jsonObj.put("customData", receipt.getCustomData());
+			StringBuilder sb = new StringBuilder();
+			sb.append(receipt.getProductId());
+			sb.append(receipt.getOrderId());
+			if (receipt.getCustomData() != null)
+			{
+				sb.append(receipt.getCustomData());
+			}
+			if (appInfo.getMd5Key() != null)
+			{
+				sb.append(appInfo.getMd5Key());
+			}
+			String md5Sign = DigestUtils.md5Hex(sb.toString());
+			jsonObj.put("md5Sign", md5Sign);
 			
 			HttpPost post = new HttpPost(appInfo.getNotifyUrl());
 			StringEntity strEntity = new StringEntity(jsonObj.toString(),"UTF-8");
@@ -104,4 +118,5 @@ public class ReceiptUtil
 			}
 		}
 	}
+
 }

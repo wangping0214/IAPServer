@@ -4,6 +4,7 @@ public class AppInfo
 {
 	private long id;
 	private String notifyUrl;
+	private String md5Key;
 	
 	public AppInfo()
 	{
@@ -24,5 +25,15 @@ public class AppInfo
 	public void setNotifyUrl(String notifyUrl)
 	{
 		this.notifyUrl = notifyUrl;
+	}
+
+	public String getMd5Key()
+	{
+		return md5Key;
+	}
+
+	public void setMd5Key(String md5Key)
+	{
+		this.md5Key = md5Key;
 	}
 }
