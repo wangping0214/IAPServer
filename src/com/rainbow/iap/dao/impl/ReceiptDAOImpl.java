@@ -27,7 +27,7 @@ public class ReceiptDAOImpl implements ReceiptDAO
 		try
 		(
 			Connection conn = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement pstmt = conn.prepareStatement("insert into receipt(cp_id, app_id, product_id, order_id, custom_data, receipt_time, has_notify) values(?, ?, ?, ?, ?, ?, ?)");
+			PreparedStatement pstmt = conn.prepareStatement("insert into receipt(cp_id, app_id, product_id, order_id, custom_data, receipt_time, price, has_notify) values(?, ?, ?, ?, ?, ?, ?, ?)");
 		)
 		{
 			pstmt.setString(1, receipt.getCpId());
@@ -36,7 +36,8 @@ public class ReceiptDAOImpl implements ReceiptDAO
 			pstmt.setString(4, receipt.getOrderId());
 			pstmt.setString(5, receipt.getCustomData());
 			pstmt.setTimestamp(6, receipt.getReceiptTime());
-			pstmt.setInt(7, receipt.getHasNotify());
+			pstmt.setDouble(7, receipt.getPrice());
+			pstmt.setInt(8, receipt.getHasNotify());
 			pstmt.executeUpdate();
 		} catch (SQLException e)
 		{

@@ -53,6 +53,7 @@ public class ReceiptUtil
 			receipt.setOrderId(orderId);
 			receipt.setCustomData(order.getCustomData());
 			receipt.setReceiptTime(new Timestamp(System.currentTimeMillis()));
+			receipt.setPrice(order.getPrice());
 			ReceiptDAOImpl.getInstance().save(receipt);
 			notify(receipt);
 		}
@@ -67,12 +68,13 @@ public class ReceiptUtil
 		//_notifyMap.put(receipt.getOrderId(), receipt);
 		AppInfo appInfo = AppInfoDAOImpl.getInstance().getByCpIdAndAppId(receipt.getCpId(), receipt.getAppId());
 		logger.info("appInfo=" + appInfo);
-		if (appInfo != null && appInfo.getNotifyUrl() != null)
+		if (appInfo != null && appInfo.getNotifyUrl() != null && !appInfo.getNotifyUrl().isEmpty())
 		{
 			JSONObject jsonObj = new JSONObject();
 			jsonObj.put("productId", receipt.getProductId());
 			jsonObj.put("orderId", receipt.getOrderId());
 			jsonObj.put("customData", receipt.getCustomData());
+			jsonObj.put("price", receipt.getPrice());
 			StringBuilder sb = new StringBuilder();
 			sb.append(receipt.getProductId());
 			sb.append(receipt.getOrderId());
@@ -80,6 +82,7 @@ public class ReceiptUtil
 			{
 				sb.append(receipt.getCustomData());
 			}
+			sb.append(receipt.getPrice());
 			if (appInfo.getMd5Key() != null)
 			{
 				sb.append(appInfo.getMd5Key());

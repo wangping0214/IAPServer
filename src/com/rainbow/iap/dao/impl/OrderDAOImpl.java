@@ -33,13 +33,14 @@ public class OrderDAOImpl implements OrderDAO
 		try
 		(
 			Connection conn = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement pstmt = conn.prepareStatement("insert into order_cache(order_id, product_id, custom_data, order_time) values(?, ?, ?, ?)");
+			PreparedStatement pstmt = conn.prepareStatement("insert into order_cache(order_id, product_id, custom_data, price, order_time) values(?, ?, ?, ?, ?)");
 		)
 		{
 			pstmt.setString(1, entity.getOrderId());
 			pstmt.setString(2, entity.getProductId());
 			pstmt.setString(3, entity.getCustomData());
-			pstmt.setTimestamp(4, entity.getOrderTime());
+			pstmt.setDouble(4, entity.getPrice());
+			pstmt.setTimestamp(5, entity.getOrderTime());
 			pstmt.executeUpdate();
 		} catch (SQLException e)
 		{
@@ -65,6 +66,7 @@ public class OrderDAOImpl implements OrderDAO
 				entity.setProductId(rs.getString("product_id"));
 				entity.setCustomData(rs.getString("custom_data"));
 				entity.setOrderTime(rs.getTimestamp("order_time"));
+				entity.setPrice(rs.getDouble("price"));
 				return entity;
 			}
 		} 

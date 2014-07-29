@@ -119,6 +119,7 @@ public class PurchaseOrderService extends HttpServlet
 				order.setProductId(purchaseOrder.getProductId());
 				order.setOrderTime(new Timestamp(purchaseOrder.getPurchaseTime()));
 				order.setCustomData(purchaseOrderRequest.getCustomData());
+				order.setPrice(purchaseOrder.getPrice());
 				OrderDAOImpl.getInstance().save(order);
 				
 				JSONObject resultJsonObj = new JSONObject();

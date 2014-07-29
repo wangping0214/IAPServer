@@ -8,6 +8,7 @@ public class Order
 	private String orderId;
 	private String productId;
 	private String customData;
+	private double price;
 	private Timestamp orderTime;
 	
 	public Order()
@@ -52,6 +53,16 @@ public class Order
 	public void setCustomData(String customData)
 	{
 		this.customData = customData;
+	}
+	
+	public double getPrice()
+	{
+		return price;
+	}
+
+	public void setPrice(double price)
+	{
+		this.price = price;
 	}
 
 	public Timestamp getOrderTime()

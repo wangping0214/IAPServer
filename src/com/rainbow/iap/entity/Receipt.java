@@ -11,6 +11,7 @@ public class Receipt
 	private String orderId;
 	private String customData;
 	private Timestamp receiptTime;
+	private double price;
 	private int hasNotify;
 	
 	public Receipt()
@@ -86,6 +87,16 @@ public class Receipt
 	public void setReceiptTime(Timestamp receiptTime)
 	{
 		this.receiptTime = receiptTime;
+	}
+
+	public double getPrice()
+	{
+		return price;
+	}
+
+	public void setPrice(double price)
+	{
+		this.price = price;
 	}
 
 	public int getHasNotify()
