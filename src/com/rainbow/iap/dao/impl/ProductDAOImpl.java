@@ -53,6 +53,7 @@ public class ProductDAOImpl implements ProductDAO
 					product.setDescription(rs.getString("description"));
 					product.setUnicomProductId(rs.getString("china_unicom_product_id"));
 					product.setUnicomConsumeCode(rs.getString("china_unicom_consume_code"));
+					product.setPrice(rs.getDouble("price"));
 					return product;
 				}
 			}

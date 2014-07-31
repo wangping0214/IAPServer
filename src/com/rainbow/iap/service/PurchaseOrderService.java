@@ -83,6 +83,7 @@ public class PurchaseOrderService extends HttpServlet
 					purchaseOrder.setName(product.getName());
 					purchaseOrder.setChinaUnicomProductId(product.getUnicomProductId());
 					purchaseOrder.setChinaUnicomConsumeCode(product.getUnicomConsumeCode());
+					purchaseOrder.setPrice(product.getPrice());
 					purchaseOrder.setDescription(product.getDescription());
 					long orderSeq = UniqueIdDAOImpl.getInstance().getNextOrderSeq(product.getCpId(), product.getAppId());
 					purchaseOrder.setOrderId(product.getCpId() + product.getAppId() + "00" + String.format("%010d", orderSeq));
