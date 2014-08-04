@@ -87,7 +87,9 @@ public class ReceiptUtil
 			{
 				sb.append(appInfo.getMd5Key());
 			}
+			logger.info("SignStr:====" + sb.toString() + "====");
 			String md5Sign = DigestUtils.md5Hex(sb.toString());
+			logger.info("md5Sign:====" + md5Sign + "====");
 			jsonObj.put("md5Sign", md5Sign);
 			
 			HttpPost post = new HttpPost(appInfo.getNotifyUrl());
