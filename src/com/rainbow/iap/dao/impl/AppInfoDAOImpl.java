@@ -42,7 +42,7 @@ public class AppInfoDAOImpl implements AppInfoDAO
 				AppInfo entity = new AppInfo();
 				entity.setId(rs.getLong("id"));
 				entity.setNotifyUrl(rs.getString("notify_url"));
-				entity.setMd5Key("md5_key");
+				entity.setMd5Key(rs.getString("md5_key"));
 				return entity;
 			}
 		} 
