@@ -74,7 +74,7 @@ public class ReceiptUtil
 			jsonObj.put("productId", receipt.getProductId());
 			jsonObj.put("orderId", receipt.getOrderId());
 			jsonObj.put("customData", receipt.getCustomData());
-			jsonObj.put("price", receipt.getPrice());
+			jsonObj.put("price", Double.toString(receipt.getPrice()));
 			StringBuilder sb = new StringBuilder();
 			sb.append(receipt.getProductId());
 			sb.append(receipt.getOrderId());
@@ -82,7 +82,7 @@ public class ReceiptUtil
 			{
 				sb.append(receipt.getCustomData());
 			}
-			sb.append(receipt.getPrice());
+			sb.append(Double.toString(receipt.getPrice()));
 			if (appInfo.getMd5Key() != null)
 			{
 				sb.append(appInfo.getMd5Key());
