@@ -2,7 +2,6 @@ package com.rainbow.iap.service.notify;
 
 import java.io.IOException;
 import java.io.StringReader;
-//import java.io.StringWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -12,15 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-/*
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-*/
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -123,28 +113,22 @@ public class UnionPayIAPService extends HttpServlet
 					Element childElem = (Element) childNode;
 					if (childElem.getTagName().equals("VERSION"))
 					{
-						logger.info("VERSION: " + childElem.getTextContent());
 						version = childElem.getTextContent();
 					}
 					else if (childElem.getTagName().equals("MERCHANT"))
 					{
-						logger.info("MERCHANT: " + childElem.getTextContent());
 						merchant = childElem.getTextContent();
 					}
 					else if (childElem.getTagName().equals("TERMINAL"))
 					{
-						logger.info("TERMINAL: " + childElem.getTextContent());
 						terminal = childElem.getTextContent();
 					}
 					else if (childElem.getTagName().equals("DATA"))
 					{
-						logger.info("DATA: " + childElem.getTextContent());
-						//cipherDataElem = childElem;
 						requestData = childElem.getTextContent();
 					}
 					else if (childElem.getTagName().equals("SIGN"))
 					{
-						logger.info("SIGN: " + childElem.getTextContent());
 						signStr = childElem.getTextContent();
 					}
 				}
@@ -173,20 +157,10 @@ public class UnionPayIAPService extends HttpServlet
 					}
 					if (tradeElem != null || returnElem != null)
 					{
-						processTrade(tradeElem);
-						processReturn(returnElem);
-						/*
-						Element returnElem = genReturn(dataDoc, validateSignResult);
-						dataElem.replaceChild(returnElem, returnElem);
-						String returnStr = transform(dataDoc);
-						String cipherReturnStr = DES.encrypt(returnStr, UNION_PAY_DES_KEY, "UTF-8");
-						cipherDataElem.setTextContent(cipherReturnStr);*/
+						processResult(tradeElem, returnElem);
 					}
 				}
 			}
-			
-			//response.setContentType("application/xml");
-			//response.getWriter().println(transform(doc));
 		} catch (ParserConfigurationException e)
 		{
 			e.printStackTrace();
@@ -211,7 +185,7 @@ public class UnionPayIAPService extends HttpServlet
 		}
 	}
 	
-	private void processTrade(Element tradeElem)
+	private void processResult(Element tradeElem, Element returnElem)
 	{
 		UnionPayIAPInfo iapInfo = new UnionPayIAPInfo();
 		String tradeTimeStr = "";
@@ -228,13 +202,10 @@ public class UnionPayIAPService extends HttpServlet
 				}
 				else if (childElem.getTagName().equals("ID"))
 				{
-					logger.info("ID: " + childElem.getTextContent());
 					iapInfo.setTradeId(childElem.getTextContent());
-					ReceiptUtil.generateReceipt(iapInfo.getTradeId());
 				}
 				else if (childElem.getTagName().equals("AMOUNT"))
 				{
-					logger.info("AMOUNT: " + childElem.getTextContent());
 					iapInfo.setTradeAmount(childElem.getTextContent());
 				}
 				else if (childElem.getTagName().equals("CURRENCY"))
@@ -263,6 +234,15 @@ public class UnionPayIAPService extends HttpServlet
 		{
 			iapInfo.setTradeTime(IAPDateFormatter.strToTime(tradeTimeStr, "yyyyMMddHHmmss"));
 		}
+		
+		if (iapInfo.getTradeStatus() == 0)
+		{
+			ReceiptUtil.generateReceipt(iapInfo.getTradeId());
+		}
+		else
+		{
+			processReturn(returnElem);
+		}
 	}
 	
 	private void processReturn(Element returnElem)
@@ -285,42 +265,4 @@ public class UnionPayIAPService extends HttpServlet
 			}
 		}
 	}
-	
-	/*
-	private Element genReturn(Document dataDoc, boolean validateSignResult)
-	{
-		Element returnElem = dataDoc.createElement("RETURN");
-		Element codeElem = dataDoc.createElement("CODE");
-		Element descElem = dataDoc.createElement("DESC");
-		codeElem.setTextContent("0000000000");
-		descElem.setTextContent("³É¹¦");
-		returnElem.appendChild(codeElem);
-		returnElem.appendChild(descElem);
-		return returnElem;
-	}
-	
-	private String transform(Document doc)
-	{
-		StringWriter strWriter = new StringWriter();
-		Transformer transformer;
-		try
-		{
-			transformer = TransformerFactory.newInstance().newTransformer();
-			transformer.setOutputProperty("indent", "yes");
-			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-			transformer.transform(new DOMSource(doc), new StreamResult(strWriter));
-			return strWriter.toString();
-		} catch (TransformerConfigurationException e)
-		{
-			e.printStackTrace();
-		} catch (TransformerFactoryConfigurationError e)
-		{
-			e.printStackTrace();
-		} catch (TransformerException e)
-		{
-			e.printStackTrace();
-		}
-		return null;
-	}
-	*/
 }

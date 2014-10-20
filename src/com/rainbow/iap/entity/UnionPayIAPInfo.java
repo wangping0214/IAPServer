@@ -13,6 +13,11 @@ public class UnionPayIAPInfo
 	private String		tradeNote;
 	private int			tradeStatus;
 	
+	public UnionPayIAPInfo()
+	{
+		tradeStatus = -1;
+	}
+	
 	public long getId()
 	{
 		return id;
