@@ -95,7 +95,7 @@ public class PurchaseOrderService extends HttpServlet
 					purchaseOrder.setPrice(product.getPrice());
 					purchaseOrder.setDescription(product.getDescription());
 					long orderSeq = UniqueIdDAOImpl.getInstance().getNextOrderSeq(product.getCpId(), product.getAppId());
-					purchaseOrder.setOrderId(product.getCpId() + product.getAppId() + "01" + String.format("%050d", orderSeq));
+					purchaseOrder.setOrderId(product.getCpId() + product.getAppId() + "01" + String.format("%010d", orderSeq));
 				}
 					break;
 				case PURCHASE_METHOD_TYPE_UNION_PAY:
