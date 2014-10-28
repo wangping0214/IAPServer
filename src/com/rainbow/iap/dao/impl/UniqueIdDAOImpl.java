@@ -128,7 +128,7 @@ public class UniqueIdDAOImpl implements UniqueIdDAO
 			{
 				AtomicLong uniqueIdValue = _uniqueIdMap.get(newUniqueIdName);
 				pstmt.setString(1, newUniqueIdName);
-				pstmt.setLong(2, uniqueIdValue.longValue());
+				pstmt.setLong(2, uniqueIdValue.get());
 				pstmt.executeUpdate();
 				logger.info(String.format("IAP insert (%s, %d)", newUniqueIdName, uniqueIdValue.get()));
 			}
@@ -139,10 +139,10 @@ public class UniqueIdDAOImpl implements UniqueIdDAO
 				{
 					continue;
 				}
-				updatePstmt.setLong(1, entry.getValue().longValue());
+				updatePstmt.setLong(1, entry.getValue().get());
 				updatePstmt.setString(2, entry.getKey());
 				updatePstmt.executeUpdate();
-				logger.info(String.format("IAP update (%s, %d)", entry.getKey(), entry.getValue()));
+				logger.info(String.format("IAP update (%s, %d)", entry.getKey(), entry.getValue().get()));
 			}
 			_newUniqueIdSet.clear();
 		}
